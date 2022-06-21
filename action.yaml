@@ -1,0 +1,24 @@
+name: 'Push Packages To Packagecloud'
+description: 'Push Packages To Packagecloud'
+inputs:
+  product:
+    description: 'Product'
+    required: true
+  version:
+    description: 'Version'
+    required: true
+
+outputs:
+  result:
+    description: 'Result'
+    value: '{}'
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        apt-get install -y ruby-full
+        gem install package_cloud
+        echo '{"url":"https://packagecloud.io", "token": "${PACKAGECLOUD_TOKEN}"}' > ~/.packagecloud
+        bash push_packages.sh "${{inputs.product}}" "${{inputs.version}}"
