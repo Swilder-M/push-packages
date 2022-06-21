@@ -20,5 +20,6 @@ runs:
       run: |
         sudo apt-get install -y ruby-full
         sudo gem install package_cloud
-        echo '{"url":"https://packagecloud.io", "token": "${PACKAGECLOUD_TOKEN}"}' > ~/.packagecloud
+        echo '{"url":"https://packagecloud.io", "token": "{{PACKAGECLOUD_TOKEN}}"}' > ~/.packagecloud.yml
+        package_cloud repository list
         bash push_packages.sh "${{inputs.product}}" "${{inputs.version}}"
