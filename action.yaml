@@ -22,4 +22,4 @@ runs:
         sudo gem install package_cloud
         echo '{"url":"https://packagecloud.io", "token": "'${PACKAGECLOUD_TOKEN}'"}' > ~/.packagecloud
         package_cloud repository list
-        bash push_packages.sh "${{inputs.product}}" "${{inputs.version}}"
+        ./push_packages.sh "${{inputs.product}}" "${{inputs.version}}"
