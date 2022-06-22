@@ -46,19 +46,17 @@ get_os_info() {
 }
 
 delete_package() {
-	repo_name=$product
-	if [ "$product" == "emqx" ]; then
-		repo_name="emqx-community"
-	fi
+	repo_name="${1}"
+	package_version="${2}"
 
-	packages=$(curl -s https://$PACKAGECLOUD_TOKEN:@packagecloud.io/api/v1/repos/emqx/$repo_name/search.json\?q=$version\&per_page=100 | jq -r '.[]')
+	packages=$(curl -s https://${PACKAGECLOUD_TOKEN}:@packagecloud.io/api/v1/repos/emqx/${repo_name}/search.json\?q=${package_version}\&per_page=100 | jq -r '.[]')
 	for package in $packages; do
-		package_name=$(echo $package | jq -r '.filename')
-		package_version=$(echo $package | jq -r '.version')
+		file_name=$(echo $package | jq -r '.filename')
+		file_version=$(echo $package | jq -r '.version')
 		destroy_url=$(echo $package | jq -r '.destroy_url')
-		if [ "$package_version" == "$version" ]; then
-			echo "Deleting package: $package_name"
-			curl -s -X DELETE https://$PACKAGECLOUD_TOKEN:@packagecloud.io$destroy_url
+		if [ "$file_version" = "$package_version" ]; then
+			echo "Deleting package: $file_name"
+			curl -s -X DELETE https://${PACKAGECLOUD_TOKEN}:@packagecloud.io${destroy_url}
 		fi
 	done
 }
@@ -76,7 +74,7 @@ push_packages() {
 		exit 1
 	fi
 
-	delete_package
+	delete_package $product $version
 
 	for asset in ${assets[@]}; do
 		if [[ $asset =~ "sqlite" ]]; then
@@ -113,7 +111,7 @@ push_emqx() {
 		exit 1
 	fi
 
-	delete_package
+	delete_package "emqx-community" $version
 
 	for asset in ${assets[@]}; do
 		echo "> Downloading $asset"
