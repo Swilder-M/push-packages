@@ -45,6 +45,24 @@ get_os_info() {
 	os="$os_name/$os_version"
 }
 
+delete_package() {
+	repo_name=$product
+	if [ "$product" == "emqx" ]; then
+		repo_name="emqx-community"
+	fi
+
+	packages=$(curl -s https://$PACKAGECLOUD_TOKEN:@packagecloud.io/api/v1/repos/emqx/$repo_name/search.json\?q=$version\&per_page=100 | jq -r '.[]')
+	for package in $packages; do
+		package_name=$(echo $package | jq -r '.filename')
+		package_version=$(echo $package | jq -r '.version')
+		destroy_url=$(echo $package | jq -r '.destroy_url')
+		if [ "$package_version" == "$version" ]; then
+			echo "Deleting package: $package_name"
+			curl -s -X DELETE https://$PACKAGECLOUD_TOKEN:@packagecloud.io$destroy_url
+		fi
+	done
+}
+
 # for nanomq & neuron
 push_packages() {
 	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/$product/releases/tags/${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
@@ -58,6 +76,8 @@ push_packages() {
 		exit 1
 	fi
 
+	delete_package
+
 	for asset in ${assets[@]}; do
 		if [[ $asset =~ "sqlite" ]]; then
 			continue
@@ -68,10 +88,10 @@ push_packages() {
 
 		case $asset in
 		*.rpm)
-			package_cloud push emqx/${product}/rpm_any/rpm_any ${folder_name}/${asset} --skip-errors
+			package_cloud push emqx/${product}/rpm_any/rpm_any ${folder_name}/${asset}
 			;;
 		*.deb)
-			package_cloud push emqx/${product}/any/any ${folder_name}/${asset} --skip-errors
+			package_cloud push emqx/${product}/any/any ${folder_name}/${asset}
 			;;
 		*)
 			echo "> Unknown asset type: $asset"
@@ -93,11 +113,13 @@ push_emqx() {
 		exit 1
 	fi
 
+	delete_package
+
 	for asset in ${assets[@]}; do
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
-		package_cloud push emqx/emqx-community/$os ${folder_name}/${asset} --skip-errors
+		package_cloud push emqx/emqx-community/$os ${folder_name}/${asset}
 	done
 }
 
