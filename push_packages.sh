@@ -49,15 +49,10 @@ delete_package() {
 	repo_name="${1}"
 	package_version="${2}"
 
-	packages=$(curl -s https://${PACKAGECLOUD_TOKEN}:@packagecloud.io/api/v1/repos/emqx/${repo_name}/search.json\?q=${package_version}\&per_page=100 | jq -r '.[]')
-	for package in $packages; do
-		file_name=$(echo $package | jq -r '.filename')
-		file_version=$(echo $package | jq -r '.version')
-		destroy_url=$(echo $package | jq -r '.destroy_url')
-		if [ "$file_version" = "$package_version" ]; then
-			echo "Deleting package: $file_name"
-			curl -s -X DELETE https://${PACKAGECLOUD_TOKEN}:@packagecloud.io${destroy_url}
-		fi
+	urls=$(curl -s https://${PACKAGECLOUD_TOKEN}:@packagecloud.io/api/v1/repos/emqx/${repo_name}/search.json\?q=${package_version}\&per_page=100 | jq -r '.[] | select(.version == "'${package_version}'") | .distro_version + "=" + .filename')
+	for destroy_url in $urls; do
+		destroy_url=$(echo $destroy_url | sed 's/\(.*\)=\(.*\)/\1 \2/')
+		package_cloud yank emqx/$repo_name/$destroy_url
 	done
 }
 
