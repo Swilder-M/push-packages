@@ -68,10 +68,10 @@ push_packages() {
 
 		case $asset in
 		*.rpm)
-			package_cloud push emqx/${product}/rpm_any/rpm_any ${folder_name}/${asset}
+			package_cloud push emqx/${product}/rpm_any/rpm_any ${folder_name}/${asset} --skip-errors
 			;;
 		*.deb)
-			package_cloud push emqx/${product}/any/any ${folder_name}/${asset}
+			package_cloud push emqx/${product}/any/any ${folder_name}/${asset} --skip-errors
 			;;
 		*)
 			echo "> Unknown asset type: $asset"
@@ -97,7 +97,7 @@ push_emqx() {
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
-		package_cloud push emqx/emqx-community/$os ${folder_name}/${asset}
+		package_cloud push emqx/emqx-community/$os ${folder_name}/${asset} --skip-errors
 	done
 }
 
