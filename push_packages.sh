@@ -106,13 +106,13 @@ push_emqx() {
 		exit 1
 	fi
 
-	delete_package "emqx-community" $version
+	delete_package "emqx" $version
 
 	for asset in ${assets[@]}; do
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
-		package_cloud push emqx/emqx-community/$os ${folder_name}/${asset}
+		package_cloud push emqx/emqx/$os ${folder_name}/${asset}
 	done
 }
 
