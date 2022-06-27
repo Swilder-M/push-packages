@@ -1,6 +1,8 @@
 #!/bin/bash
 product="${1:-emqx}"
 version="${2:-5.0.0}"
+version=${version#v}
+version=${version#e}
 
 get_os_info() {
 	os_version=$(echo ${1} | rev | cut -d'-' -f2 | rev)
@@ -116,9 +118,35 @@ push_emqx() {
 	done
 }
 
+push_emqx_enterprise() {
+	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/emqx-enterprise/releases/tags/e${version} |  jq '[.assets[] | {name: .name, url: .url} | select(.name | endswith(".deb") or endswith(".rpm"))]')
+	assets_num=$(echo $assets | jq '. | length')
+	folder_name="emqx-enterprise-${version}"
+
+	if [ ! -d $folder_name ]; then
+		mkdir $folder_name
+	else
+		echo "> $folder_name folder already exists"
+		exit 1
+	fi
+
+	delete_package "emqx-enterprise" $version
+
+	for asset_index in `seq 0 $(($assets_num - 1))`; do
+		asset_name=$(echo $assets | jq -r ".[$asset_index].name")
+		asset_url=$(echo $assets | jq -r ".[$asset_index].url")
+		echo "> Downloading $asset_name"
+		curl -L -s -X GET $asset_url -H 'Accept: application/octet-stream' -H "Authorization: token $GIT_TOKEN" -o "${folder_name}/${asset_name}"
+		get_os_info $asset_name
+		package_cloud push emqx/emqx-enterprise/$os ${folder_name}/${asset_name}
+	done
+}
+
 main() {
 	if [ $product == "emqx" ]; then
 		push_emqx
+	elif [ $product == "enterprise" ]; then
+		push_emqx_enterprise
 	else
 		push_packages
 	fi
