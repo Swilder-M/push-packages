@@ -98,6 +98,10 @@ push_packages() {
 
 push_emqx() {
 	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/emqx/releases/tags/v${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
+	if [ -z "$assets" ]; then
+		echo "> No assets found"
+		exit 1
+	fi
 	download_prefix="https://github.com/emqx/emqx/releases/download/v${version}"
 	folder_name="emqx-${version}"
 
