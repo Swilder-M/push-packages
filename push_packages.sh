@@ -61,6 +61,10 @@ delete_package() {
 # for nanomq & neuron
 push_packages() {
 	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/$product/releases/tags/${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
+	if [ -z "$assets" ]; then
+		echo "> No assets found"
+		exit 1
+	fi
 	download_prefix="https://github.com/emqx/$product/releases/download/${version}"
 	folder_name="${product}-${version}"
 
@@ -124,6 +128,10 @@ push_emqx() {
 
 push_emqx_enterprise() {
 	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/emqx-enterprise/releases/tags/e${version} |  jq '[.assets[] | {name: .name, url: .url} | select(.name | endswith(".deb") or endswith(".rpm"))]')
+	if [ -z "$assets" ]; then
+		echo "> No assets found"
+		exit 1
+	fi
 	assets_num=$(echo $assets | jq '. | length')
 	folder_name="emqx-enterprise-${version}"
 
