@@ -119,6 +119,9 @@ push_emqx() {
 	delete_package "emqx" $version
 
 	for asset in ${assets[@]}; do
+		if [[ $asset =~ "emqx-edge-" ]]; then
+			continue
+		fi
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
