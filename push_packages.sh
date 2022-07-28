@@ -60,12 +60,17 @@ delete_package() {
 
 # for nanomq & neuron
 push_packages() {
-	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/$product/releases/tags/${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
+	if [ "$product" == "neuron" ]; then
+		product_repo="neuron-modules"
+	else
+		product_repo="${product}"
+	fi
+	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/$product_repo/releases/tags/${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
 	if [ -z "$assets" ]; then
 		echo "> No assets found"
 		exit 1
 	fi
-	download_prefix="https://github.com/emqx/$product/releases/download/${version}"
+	download_prefix="https://github.com/emqx/$product_repo/releases/download/${version}"
 	folder_name="${product}-${version}"
 
 	if [ ! -d $folder_name ]; then
@@ -83,7 +88,7 @@ push_packages() {
 		fi
 
 		echo "> Downloading $asset"
-		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
+		curl -L -s -X GET "${download_prefix}/${asset}" -H 'Accept: application/octet-stream' -H "Authorization: token $GIT_TOKEN" -o "${folder_name}/${asset}"
 
 		case $asset in
 		*.rpm)
