@@ -131,6 +131,11 @@ push_emqx() {
 		if [[ $asset =~ "emqx-edge-" ]]; then
 			continue
 		fi
+
+		if [[ $asset =~ "otp" ]]; then
+			continue
+		fi
+
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
@@ -159,6 +164,9 @@ push_emqx_enterprise() {
 	for asset_index in `seq 0 $(($assets_num - 1))`; do
 		asset_name=$(echo $assets | jq -r ".[$asset_index].name")
 		asset_url=$(echo $assets | jq -r ".[$asset_index].url")
+		if [[ $asset_name =~ "otp" ]]; then
+			continue
+		fi
 		echo "> Downloading $asset_name"
 		curl -L -s -X GET $asset_url -H 'Accept: application/octet-stream' -H "Authorization: token $GIT_TOKEN" -o "${folder_name}/${asset_name}"
 		get_os_info $asset_name
