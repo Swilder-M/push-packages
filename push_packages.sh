@@ -132,7 +132,7 @@ push_emqx() {
 			continue
 		fi
 
-		if [[ $asset =~ "otp" ]]; then
+		if [[ $asset =~ "otp" ]] && [[ $version =~ ^5 ]]; then
 			continue
 		fi
 
@@ -164,9 +164,11 @@ push_emqx_enterprise() {
 	for asset_index in `seq 0 $(($assets_num - 1))`; do
 		asset_name=$(echo $assets | jq -r ".[$asset_index].name")
 		asset_url=$(echo $assets | jq -r ".[$asset_index].url")
-		if [[ $asset_name =~ "otp" ]]; then
+		
+		if [[ $asset =~ "otp" ]] && [[ $version =~ ^5 ]]; then
 			continue
 		fi
+
 		echo "> Downloading $asset_name"
 		curl -L -s -X GET $asset_url -H 'Accept: application/octet-stream' -H "Authorization: token $GIT_TOKEN" -o "${folder_name}/${asset_name}"
 		get_os_info $asset_name
