@@ -136,6 +136,10 @@ push_emqx() {
 			continue
 		fi
 
+		if [[ $asset =~ "amzn2" ]]; then
+			continue
+		fi
+
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
@@ -166,6 +170,10 @@ push_emqx_enterprise() {
 		asset_url=$(echo $assets | jq -r ".[$asset_index].url")
 		
 		if [[ $asset =~ "otp" ]] && [[ $version =~ ^5 ]]; then
+			continue
+		fi
+
+		if [[ $asset =~ "amzn2" ]]; then
 			continue
 		fi
 
