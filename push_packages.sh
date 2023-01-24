@@ -91,6 +91,10 @@ push_packages() {
 			continue
 		fi
 
+		if [[ $asset =~ "riscv64" ]]; then
+			continue
+		fi
+
 		echo "> Downloading $asset"
 		curl -L -s -X GET "${download_prefix}/${asset}" -H 'Accept: application/octet-stream' -H "Authorization: token $GIT_TOKEN" -o "${folder_name}/${asset}"
 
