@@ -91,6 +91,10 @@ push_packages() {
 			continue
 		fi
 
+		if [[ $asset =~ "full" ]]; then
+			continue
+		fi
+
 		if [[ $asset =~ "riscv64" ]]; then
 			continue
 		fi
