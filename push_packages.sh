@@ -104,10 +104,10 @@ push_packages() {
 
 		case $asset in
 		*.rpm)
-			package_cloud push emqx/${product}/rpm_any/rpm_any ${folder_name}/${asset}
+			package_cloud push emqx/${product}/rpm_any/rpm_any ${folder_name}/${asset} || true
 			;;
 		*.deb)
-			package_cloud push emqx/${product}/any/any ${folder_name}/${asset}
+			package_cloud push emqx/${product}/any/any ${folder_name}/${asset} || true
 			;;
 		*)
 			echo "> Unknown asset type: $asset"
