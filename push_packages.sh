@@ -35,6 +35,10 @@ get_os_info() {
 		os_name="debian"
 		os_version="bullseye"
 		;;
+	amzn2)
+		os_name="el"
+		os_version="6"
+		;;
 	el7)
 		os_name="el"
 		os_version="7"
@@ -42,6 +46,10 @@ get_os_info() {
 	el8)
 		os_name="el"
 		os_version="8"
+		;;
+	el9)
+		os_name="el"
+		os_version="9"
 		;;
 	*)
 		echo "Unknown OS version: $os_version"
@@ -148,10 +156,6 @@ push_emqx() {
 			continue
 		fi
 
-		if [[ $asset =~ "amzn2" ]]; then
-			continue
-		fi
-
 		echo "> Downloading $asset"
 		curl -s -L "${download_prefix}/${asset}" -o "${folder_name}/${asset}"
 		get_os_info $asset
@@ -182,10 +186,6 @@ push_emqx_enterprise() {
 		asset_url=$(echo $assets | jq -r ".[$asset_index].url")
 		
 		if [[ $asset_name =~ "otp" ]] && [[ $version =~ ^5 ]]; then
-			continue
-		fi
-
-		if [[ $asset_name =~ "amzn2" ]]; then
 			continue
 		fi
 
