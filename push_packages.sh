@@ -19,6 +19,10 @@ get_os_info() {
 		os_name="ubuntu"
 		os_version="focal"
 		;;
+	ubuntu22.04)
+		os_name="ubuntu"
+		os_version="jammy"
+		;;
 	debian9)
 		os_name="debian"
 		os_version="stretch"
