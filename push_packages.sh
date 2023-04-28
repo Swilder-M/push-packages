@@ -177,11 +177,11 @@ push_emqx_enterprise() {
 		asset_name=$(echo $assets | jq -r ".[$asset_index].name")
 		asset_url=$(echo $assets | jq -r ".[$asset_index].url")
 		
-		if [[ $asset =~ "otp" ]] && [[ $version =~ ^5 ]]; then
+		if [[ $asset_name =~ "otp" ]] && [[ $version =~ ^5 ]]; then
 			continue
 		fi
 
-		if [[ $asset =~ "amzn2" ]]; then
+		if [[ $asset_name =~ "amzn2" ]]; then
 			continue
 		fi
 
