@@ -73,16 +73,19 @@ delete_package() {
 # for nanomq & neuron
 push_packages() {
 	if [ "$product" == "neuron" ]; then
-		product_repo="neuron-modules"
+		product_repo="emqx/neuron-modules"
+	elif [ "$product" == "nanomq" ]; then
+		product_repo="nanomq/nanomq"
 	else
-		product_repo="${product}"
+		echo "> Unknown product: $product"
+		exit 1
 	fi
-	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/emqx/$product_repo/releases/tags/${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
+	assets=$(curl -s -H "Authorization: token $GIT_TOKEN" https://api.github.com/repos/$product_repo/releases/tags/${version} | jq -r '.assets[] | .name' | grep -E '\.rpm$|\.deb$')
 	if [ -z "$assets" ]; then
 		echo "> No assets found"
 		exit 1
 	fi
-	download_prefix="https://github.com/emqx/$product_repo/releases/download/${version}"
+	download_prefix="https://github.com/$product_repo/releases/download/${version}"
 	folder_name="${product}-${version}"
 
 	if [ ! -d $folder_name ]; then
